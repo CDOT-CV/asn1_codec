@@ -1444,8 +1444,6 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
 	struct asn_TYPE_descriptor_s* data_struct;
     void *frame_data = 0;
 
-    // std::cout << "[DEBUG] Data as XML: " << data_as_xml << std::endl;
-
     switch (curr_op_) {
         case J2735MESSAGEFRAME:
             data_struct = &asn_DEF_MessageFrame;
@@ -1523,17 +1521,15 @@ void ASN1_Codec::encode_frame_data(const std::string& data_as_xml, std::string& 
         std::free( static_cast<void *>(buffer.buffer) );
         throw Asn1CodecError{ "failed attempt to encode SDWTIM byte buffer into hex string." };
     }
-    logger->trace(fnname + ": Encoded hex string: " + hex_string);
     
     // if data type is Ieee1609Dot2, check for hex before 001F and remove it if found
     if (curr_op_ == IEEE1609DOT2) {
         std::size_t pos = hex_string.find("001F");
         if (pos != std::string::npos) {
-            logger->warn(fnname + ": Encoded hex string contains an unwanted header before 001F. Removing hex before 001F.");
+            logger->trace(fnname + ": Encoded hex string contains an unwanted header. Removing hex before 001F.");
 
             // remove hex before 001F
             hex_string = hex_string.substr(pos);
-            logger->trace(fnname + ": Encoded hex string after removing hex before 001F: " + hex_string);
         }
     }
 

@@ -390,3 +390,18 @@ TEST_CASE("Decode VehicleEventFlags with unknown future extension, from UPER to 
     std::cout << "=== Decode VehicleEventFlags with unknown future extension, from UPER to struct, 15 bits ===" << std::endl;
     test_decode_VehicleEventFlags_from_uper(uper_15bits, 3, bitstring_15bits, 1);
 }
+
+// test case for decoding SDSM from uper
+TEST_CASE("Decode SDSM from UPER", "[decoding]") {
+    std::cout << "=== Decode SDSM from UPER ===" << std::endl;
+
+    // prepare
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream out9;
+    CHECK(asn1_codec.file_test("data/InputData.decoding.sdsm.xml", out9, false) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out9, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}

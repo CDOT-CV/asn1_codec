@@ -144,6 +144,7 @@ jobs:
           sonar.sourceEncoding=UTF-8
           EOF
       - name:  SonarScanner
+        if: github.event.pull_request.base.repo.owner.login == 'usdot-jpo-ode'
         uses: usdot-fhwa-stol/actions/sonar-scanner@main
         with:
           sonar-properties-path: /tmp/sonar-scanner.properties

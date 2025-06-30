@@ -432,6 +432,21 @@ TEST_CASE("Decode VehicleEventFlags with unknown future extension, from UPER to 
     test_decode_VehicleEventFlags_from_uper(uper_15bits, 3, bitstring_15bits, 1);
 }
 
+// test case for decoding SDSM from uper
+TEST_CASE("Decode SDSM from UPER", "[decoding]") {
+    std::cout << "=== Decode SDSM from UPER ===" << std::endl;
+
+    // prepare
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream out9;
+    CHECK(asn1_codec.file_test("data/InputData.decoding.sdsm.xml", out9, false) == EXIT_SUCCESS);
+    parse_result = output_doc.load(out9, pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+}
+
 void test_http_server_post_single(const std::string& message_type, const std::string& hex, const std::string& expect_xer_contains) {
     std::cout << "=== HttpServer::post_single: Decode " << message_type << " ===" << std::endl;
 

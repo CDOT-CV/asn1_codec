@@ -49,5 +49,6 @@ The data files in this directory are referenced in the following files:
 | j2735.MessageFrame.Bsm.xml | data/README.md | Building Test Data Files |
 | j2735.MessageFrame.Bsm.uper | data/README.md | Building Test Data Files |
 | j2735.MessageFrame.Bsm.hex | data/README.md | Building Test Data Files |
+| InputData.decoding.sdsm.xml | src/tests.cpp | Decode SDSM |
 
 The rest of the files in this directory (and subdirectories) are provided as examples and are not referenced anywhere.

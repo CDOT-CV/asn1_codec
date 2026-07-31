@@ -1074,8 +1074,7 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
 			}
 
 			// Preserve signed-data header and certificate validity details in ODE metadata before
-			// this intermediate IEEE 1609.2 document is discarded. The ODE router consolidates
-			// their raw IEEE time values into processed metadata timestamps.
+			// this intermediate IEEE 1609.2 document is discarded.
 			pugi::xml_node validity_period = internal_doc.child("Ieee1609Dot2Data")
 				.child("content").child("signedData").child("signer")
 				.child("certificate").child("Certificate").child("toBeSigned")

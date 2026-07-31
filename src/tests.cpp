@@ -141,6 +141,53 @@ TEST_CASE("Decode BSM", "[decoding]") {
     CHECK(payload_node);
 }
 
+TEST_CASE("Decode signed IEEE 1609.2 TIM", "[decoding][tim][signed]") {
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream output;
+    CHECK(asn1_codec.file_test("data/InputData.decoding.tim.signed.xml", output, false)
+          == EXIT_SUCCESS);
+    parse_result = output_doc.load(output,
+        pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype
+        | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node);
+    CHECK(payload_node.child("MessageFrame"));
+    pugi::xml_node validity_period = output_doc.child("OdeAsn1Data")
+        .child("metadata").child("signatureValidityPeriod");
+    CHECK(validity_period);
+    CHECK(std::string(validity_period.child("start").text().get()) == "712296821");
+    CHECK(std::string(validity_period.child("duration").child("hours").text().get()) == "169");
+    pugi::xml_node metadata = output_doc.child("OdeAsn1Data").child("metadata");
+    CHECK(std::string(metadata.child("isCertPresent").text().get()) == "true");
+    CHECK_FALSE(metadata.child("certPresent"));
+}
+
+TEST_CASE("Decode signed IEEE 1609.2 BSM", "[decoding][bsm][signed]") {
+    asn1_codec.setup_logger_for_testing();
+
+    std::stringstream output;
+    CHECK(asn1_codec.file_test("data/InputData.decoding.bsm.signed.xml", output, false)
+          == EXIT_SUCCESS);
+    parse_result = output_doc.load(output,
+        pugi::parse_default | pugi::parse_declaration | pugi::parse_doctype
+        | pugi::parse_trim_pcdata);
+    CHECK(parse_result);
+    payload_node = ode_payload_query.evaluate_node(output_doc).node();
+    CHECK(payload_node.child("MessageFrame"));
+    pugi::xml_node metadata = output_doc.child("OdeAsn1Data").child("metadata");
+    pugi::xml_node validity_period = metadata.child("signatureValidityPeriod");
+    pugi::xml_node header_info = metadata.child("signedDataHeaderInfo");
+    CHECK(std::string(validity_period.child("start").text().get()) == "705056405");
+    CHECK(std::string(validity_period.child("duration").child("hours").text().get()) == "169");
+    CHECK(std::string(header_info.child("psid").text().get()) == "32");
+    CHECK(std::string(header_info.child("generationTime").text().get()) == "705263211000000");
+    CHECK(std::string(header_info.child("expiryTime").text().get()) == "705664805000000");
+    CHECK(std::string(metadata.child("isCertPresent").text().get()) == "true");
+    CHECK_FALSE(metadata.child("certPresent"));
+}
+
 TEST_CASE("Decode BSM with VehicleEventFlags (hard braking event)", "[decoding]") {
     std::cout << "=== Decode BSM with VehicleEventFlags (hard braking event) ===" << std::endl;
 

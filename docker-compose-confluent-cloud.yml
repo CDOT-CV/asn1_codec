@@ -1,9 +1,10 @@
-version: '2'
+version: "2"
 services:
   adm:
     build:
       context: .
       dockerfile: Dockerfile
+    image: jpoode_acm:latest
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_TYPE: ${KAFKA_TYPE}

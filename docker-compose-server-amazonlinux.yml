@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.amazonlinux
+    image: jpoode_acm:latest
     ports:
       - "9999:9999"
     environment:
@@ -21,4 +22,3 @@ services:
         limits:
           cpus: "4"
           memory: 2G
-

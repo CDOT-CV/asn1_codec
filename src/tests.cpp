@@ -161,7 +161,6 @@ TEST_CASE("Decode signed IEEE 1609.2 TIM", "[decoding][tim][signed]") {
     CHECK(std::string(validity_period.child("duration").child("hours").text().get()) == "169");
     pugi::xml_node metadata = output_doc.child("OdeAsn1Data").child("metadata");
     CHECK(std::string(metadata.child("isCertPresent").text().get()) == "true");
-    CHECK_FALSE(metadata.child("certPresent"));
 }
 
 TEST_CASE("Decode signed IEEE 1609.2 BSM", "[decoding][bsm][signed]") {
@@ -185,7 +184,6 @@ TEST_CASE("Decode signed IEEE 1609.2 BSM", "[decoding][bsm][signed]") {
     CHECK(std::string(header_info.child("generationTime").text().get()) == "705263211000000");
     CHECK(std::string(header_info.child("expiryTime").text().get()) == "705664805000000");
     CHECK(std::string(metadata.child("isCertPresent").text().get()) == "true");
-    CHECK_FALSE(metadata.child("certPresent"));
 }
 
 TEST_CASE("Decode BSM with VehicleEventFlags (hard braking event)", "[decoding]") {

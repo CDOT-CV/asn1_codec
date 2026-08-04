@@ -1351,13 +1351,16 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
 
     logger->trace(fnname + ": ASN.1 binary decode success." );
 
-    // `asn_check_constraints` enters an infinite recursion in the generated
-    // Ieee1609Dot2BaseTypes_Psid_constraint function for signed IEEE 1609.2
-    // messages.  A successful COER decode that consumes the complete input is
-    // the safe structural validation available from this generated runtime.
-    if (decode_rval.consumed != byte_buffer.size()) {
+    // Check the decoded data against the ASN.1 specification constraints.
+    char errbuf[max_errbuf_size];
+    if (asn_check_constraints(&asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen)) {
+        std::ostringstream erroross;
+        erroross.str("");
+        erroross << "failed ASN.1 constraints check of element "
+                 << asn_DEF_Ieee1609Dot2Data.name << ": ";
+        erroross.write(errbuf, errlen);
         ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
-        throw Asn1CodecError{"IEEE 1609.2 COER decode did not consume the complete input."};
+        throw Asn1CodecError{erroross.str()};
     }
 
     // target form is always XML (for now).

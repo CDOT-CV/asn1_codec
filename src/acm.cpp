@@ -1083,6 +1083,9 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
 				.child("content").child("signedData").child("tbsData")
 				.child("headerInfo");
 			pugi::xml_node metadata = input_doc.child("OdeAsn1Data").child("metadata");
+			if (!metadata) {
+				throw Asn1CodecError{"OdeAsn1Data/metadata not found in input document"};
+			}
 			if (header_info) {
 				metadata.remove_child("signedDataHeaderInfo");
 				pugi::xml_node copied_header_info = metadata.append_copy(header_info);
@@ -1657,7 +1660,7 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
     return true;
 }
 
-bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode) {
+bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode, void (*mutate_input_doc)(pugi::xml_document&)) {
     const std::string fnname = "file_test()";
 
     std::stringstream output_msg_stream;
@@ -1699,6 +1702,10 @@ bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode)
 
             // examine the input xml encodings information and set the flags and requirements needed to properly parse the byte strings.
             set_codec_requirements( input_doc );            // throws.
+
+            if (mutate_input_doc) {
+                mutate_input_doc(input_doc);
+            }
 
             // Retain this node reference. It is where the decoded result will be inserted.
 

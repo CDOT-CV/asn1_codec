@@ -222,7 +222,7 @@ class ASN1_Codec : public tool::Tool {
         bool launch_producer();
         bool process_message(RdKafka::Message* message, std::stringstream& output_message_stream);
         bool filetest();
-        bool file_test(std::string file_path, std::ostream& os, bool encode = true);
+        bool file_test(std::string file_path, std::ostream& os, bool encode = true, void (*mutate_input_doc)(pugi::xml_document&) = nullptr);
         int operator()(void);
         const char* getEnvironmentVariable(const char* variableName);
 

@@ -186,6 +186,25 @@ TEST_CASE("Decode signed IEEE 1609.2 BSM", "[decoding][bsm][signed]") {
     CHECK(std::string(metadata.child("isCertPresent").text().get()) == "true");
 }
 
+TEST_CASE("Decode signed IEEE 1609.2 BSM fails when metadata is missing", "[decoding][bsm][signed]") {
+    asn1_codec.setup_logger_for_testing();
+
+    // Encodings live under OdeAsn1Data/metadata, so a fixture that omits metadata
+    // fails earlier in set_codec_requirements. Strip metadata after that step to
+    // reach the decode_message structural check.
+    std::stringstream output;
+    CHECK(asn1_codec.file_test(
+        "data/InputData.decoding.bsm.signed.xml",
+        output,
+        false,
+        [](pugi::xml_document& doc) {
+            doc.child("OdeAsn1Data").remove_child("metadata");
+        }) == EXIT_FAILURE);
+    CHECK_FALSE(output.str().empty());
+    CHECK(output.str().find("MessageFrame") == std::string::npos);
+    CHECK(output.str().find("signedDataHeaderInfo") == std::string::npos);
+}
+
 TEST_CASE("Decode BSM with VehicleEventFlags (hard braking event)", "[decoding]") {
     std::cout << "=== Decode BSM with VehicleEventFlags (hard braking event) ===" << std::endl;
 

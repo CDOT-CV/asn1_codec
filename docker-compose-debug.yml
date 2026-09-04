@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.debug
+    image: jpoode_acm:latest
     environment:
       DOCKER_HOST_IP: ${DOCKER_HOST_IP}
       KAFKA_TYPE: "ON-PREM"

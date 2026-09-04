@@ -1073,6 +1073,36 @@ bool ASN1_Codec::decode_message( pugi::xml_node& payload_node, std::stringstream
 				throw Asn1CodecError{ erroross.str() };
 			}
 
+			// Preserve signed-data header and certificate validity details in ODE metadata before
+			// this intermediate IEEE 1609.2 document is discarded.
+			pugi::xml_node validity_period = internal_doc.child("Ieee1609Dot2Data")
+				.child("content").child("signedData").child("signer")
+				.child("certificate").child("Certificate").child("toBeSigned")
+				.child("validityPeriod");
+			pugi::xml_node header_info = internal_doc.child("Ieee1609Dot2Data")
+				.child("content").child("signedData").child("tbsData")
+				.child("headerInfo");
+			pugi::xml_node metadata = input_doc.child("OdeAsn1Data").child("metadata");
+			if (!metadata) {
+				throw Asn1CodecError{"OdeAsn1Data/metadata not found in input document"};
+			}
+			if (header_info) {
+				metadata.remove_child("signedDataHeaderInfo");
+				pugi::xml_node copied_header_info = metadata.append_copy(header_info);
+				copied_header_info.set_name("signedDataHeaderInfo");
+			}
+			if (validity_period) {
+				metadata.remove_child("signatureValidityPeriod");
+				pugi::xml_node copied_period = metadata.append_copy(validity_period);
+				copied_period.set_name("signatureValidityPeriod");
+                
+                pugi::xml_node is_cert_present = metadata.child("isCertPresent");
+				if (!is_cert_present) {
+					is_cert_present = metadata.append_child("isCertPresent");
+				}
+				is_cert_present.text().set("true");
+            }
+
 			// XPath search the IEEE structure for the unsecured data.
 			pugi::xpath_node unsecuredDataNode = ieee1609dot2_unsecuredData_query.evaluate_node( internal_doc );
 			text = unsecuredDataNode.node().text();
@@ -1324,15 +1354,16 @@ bool ASN1_Codec::decode_1609dot2_data( std::string& data_as_hex, buffer_structur
 
     logger->trace(fnname + ": ASN.1 binary decode success." );
 
-    // check the data in the returned structure against the ASN.1 specification constraints.
+    // Check the decoded data against the ASN.1 specification constraints.
     char errbuf[max_errbuf_size];
-    if (asn_check_constraints( &asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen )) {
+    if (asn_check_constraints(&asn_DEF_Ieee1609Dot2Data, ieee1609data, errbuf, &errlen)) {
         std::ostringstream erroross;
         erroross.str("");
-        erroross << "failed ASN.1 constraints check of element " << asn_DEF_Ieee1609Dot2Data.name << ": ";
-        erroross.write( errbuf, errlen );
+        erroross << "failed ASN.1 constraints check of element "
+                 << asn_DEF_Ieee1609Dot2Data.name << ": ";
+        erroross.write(errbuf, errlen);
         ASN_STRUCT_FREE(asn_DEF_Ieee1609Dot2Data, ieee1609data);
-        throw Asn1CodecError{ erroross.str() };
+        throw Asn1CodecError{erroross.str()};
     }
 
     // target form is always XML (for now).
@@ -1629,7 +1660,7 @@ bool ASN1_Codec::set_codec_requirements( pugi::xml_document& doc ) {
     return true;
 }
 
-bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode) {
+bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode, void (*mutate_input_doc)(pugi::xml_document&)) {
     const std::string fnname = "file_test()";
 
     std::stringstream output_msg_stream;
@@ -1671,6 +1702,10 @@ bool ASN1_Codec::file_test(std::string file_path, std::ostream& os, bool encode)
 
             // examine the input xml encodings information and set the flags and requirements needed to properly parse the byte strings.
             set_codec_requirements( input_doc );            // throws.
+
+            if (mutate_input_doc) {
+                mutate_input_doc(input_doc);
+            }
 
             // Retain this node reference. It is where the decoded result will be inserted.
 

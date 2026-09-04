@@ -142,6 +142,8 @@ TEST_CASE("Decode BSM", "[decoding]") {
 }
 
 TEST_CASE("Decode signed IEEE 1609.2 TIM", "[decoding][tim][signed]") {
+    std::cout << "=== Decode signed IEEE 1609.2 TIM ===" << std::endl;
+
     asn1_codec.setup_logger_for_testing();
 
     std::stringstream output;
@@ -164,6 +166,8 @@ TEST_CASE("Decode signed IEEE 1609.2 TIM", "[decoding][tim][signed]") {
 }
 
 TEST_CASE("Decode signed IEEE 1609.2 BSM", "[decoding][bsm][signed]") {
+    std::cout << "=== Decode signed IEEE 1609.2 BSM ===" << std::endl;
+
     asn1_codec.setup_logger_for_testing();
 
     std::stringstream output;
@@ -187,6 +191,8 @@ TEST_CASE("Decode signed IEEE 1609.2 BSM", "[decoding][bsm][signed]") {
 }
 
 TEST_CASE("Decode signed IEEE 1609.2 BSM fails when metadata is missing", "[decoding][bsm][signed]") {
+    std::cout << "=== Decode signed IEEE 1609.2 BSM fails when metadata is missing ===" << std::endl;
+
     asn1_codec.setup_logger_for_testing();
 
     // Encodings live under OdeAsn1Data/metadata, so a fixture that omits metadata
